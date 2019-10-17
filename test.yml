@@ -1,0 +1,10 @@
+---
+- name: Test to verify changed environment
+  gather_facts: no
+  hosts: localhost
+  vars_files:
+  - defaults/main.yml
+  roles:
+  - unkube
+  - netapp
+  - kube

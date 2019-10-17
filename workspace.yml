@@ -1,0 +1,19 @@
+---
+- name: Standup new development enviornment
+  gather_facts: no
+  hosts: localhost
+  vars_files:
+  - defaults/main.yml
+  roles:
+  - vmware
+  - role: netapp
+    client_match: "{{ vm_facts.instance.ipv4 }}"
+- hosts: vms
+  name: Host Setup
+  vars_files:
+  - defaults/main.yml
+  roles:
+  - linux
+  - docker
+  tasks:   
+  - debug: msg="Your host is setup and ready.  It can be accessed at {{ inventory_hostname }}"

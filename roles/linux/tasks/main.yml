@@ -1,0 +1,15 @@
+---
+- name: Add EPEL-Release
+  package:
+    name: "{{ item }}"
+    state: latest
+  loop:
+  - epel-release
+  - nfs-utils
+  - lvm2
+- name: Mount cloned volume
+  mount: 
+    state: mounted
+    path: /PV
+    src: "{{ mount }}:/{{ user }}_clone"
+    fstype: nfs

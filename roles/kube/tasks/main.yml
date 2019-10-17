@@ -1,0 +1,91 @@
+- name: Create a kubernetes pv
+  k8s:
+    kubeconfig: kube_config
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        name: "{{ pv_name }}"
+      spec:
+        capacity:
+          storage: 50Gi
+        accessModes:
+        - ReadWriteMany
+        nfs:
+          server: "{{ mount }}"
+          path: "/{{ vol_name }}"
+    state: present
+- name: Create a kubernetes pvc
+  k8s:
+    kubeconfig: kube_config
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: "{{ pvc_name }}"
+        namespace: default
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: ""
+        resources:
+          requests:
+            storage: 50Gi
+    state: present
+- name: Create MC pod
+  k8s:
+    kubeconfig: kube_config
+    definition:
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: "{{ pod_name }}"
+        namespace: default
+        labels:
+          app: "{{ pod_name }}"
+      spec:
+        volumes:
+          - name: nfs
+            persistentVolumeClaim:
+              claimName: "{{ pvc_name }}"
+        containers:
+        - image: itzg/minecraft-server
+          name: minecraft-server
+          env:
+            - name: OPS
+              value: schmots
+            - name: EULA
+              value: "TRUE"
+          ports:
+            - containerPort: 25565 
+          volumeMounts:
+            - name: nfs
+              mountPath: "/data"
+    state: present
+- name: Expose ports for MC
+  k8s:
+    kubeconfig: kube_config
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ pod_name }}"
+        namespace: default
+      spec:
+        selector:
+          app: "{{ pod_name }}"
+        ports:
+          - port: 25565
+        type: NodePort
+      state: present 
+- name: Gather facts about service
+  k8s_facts:
+    kubeconfig: kube_config
+    api_version: v1
+    kind: Service
+    name: "{{ pod_name }}"
+    namespace: default
+  register: mc_service
+- name: Pod Service Port
+  debug:
+    msg: "{{ mc_service.resources[0].spec.ports[0].nodePort }}"

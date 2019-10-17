@@ -1,0 +1,56 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars:
+    client: 172.32.0.0/24
+    vserver: nfs_vserver
+    volname: master_vol
+    aggr: aggr1
+    policy: master_vol
+    ontap: &ontap
+      hostname: 172.32.0.192
+      username: admin
+      password: netapp123
+      https: true
+      validate_certs: false
+  tasks:
+  - name: Delete volume
+    na_ontap_volume:
+      state: absent
+      name: "{{ volname }}"
+      vserver: "{{ vserver }}"
+      <<: *ontap
+  - name: Delete Policy
+    na_ontap_export_policy:
+      state: absent
+      name: "{{ policy }}"
+      vserver: "{{ vserver }}"
+      <<: *ontap
+  - name: Create Policy
+    na_ontap_export_policy:
+      state: present
+      name: "{{ policy }}"
+      vserver: "{{ vserver }}"
+      <<: *ontap
+  - name: Setup rules
+    na_ontap_export_policy_rule:
+      state: present
+      policy_name: "{{ policy }}"
+      vserver: "{{ vserver }}"
+      client_match: "{{ client }}"
+      ro_rule: sys
+      rw_rule: sys
+      super_user_security: sys
+      <<: *ontap
+  - name: Create volume
+    na_ontap_volume:
+      state: present
+      name: "{{ volname }}"
+      aggregate_name: "{{ aggr }}"
+      size: 1
+      size_unit: gb
+      policy: "{{ policy }}"
+      junction_path: "/{{ volname }}"
+      space_guarantee: "none"
+      vserver: "{{ vserver }}"
+      <<: *ontap

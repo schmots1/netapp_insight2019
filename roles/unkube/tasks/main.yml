@@ -1,0 +1,86 @@
+- name: Clean  ports for MC
+  k8s:
+    state: absent 
+    kubeconfig: kube_config
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ pod_name }}"
+        namespace: default
+      spec:
+        selector:
+          app: "{{ pod_name }}"
+        ports:
+          - port: 25565
+        type: NodePort
+  when: jobtype != 'update'
+- name: Clean kubernetes pv
+  k8s:
+    kubeconfig: kube_config
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        name: "{{ pv_name }}"
+      spec:
+        capacity:
+          storage: 50Gi
+        accessModes:
+        - ReadWriteMany
+        nfs:
+          server: "{{ mount }}"
+          path: "/{{ vol_name }}"
+    state: absent
+  when: jobtype != 'update'
+- name: Clean kubernetes pvc
+  k8s:
+    kubeconfig: kube_config
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: "{{ pvc_name }}"
+        namespace: default
+      spec:
+        accessModes:
+          - ReadWriteMany
+        storageClassName: ""
+        resources:
+          requests:
+            storage: 50Gi
+    state: absent
+  when: jobtype != 'update'
+- name: Clean MC pod
+  k8s:
+    kubeconfig: kube_config
+    definition:
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: "{{ pod_name }}"
+        namespace: default
+        labels:
+          app: "{{ pod_name }}"
+      spec:
+        volumes:
+          - name: nfs
+            persistentVolumeClaim:
+              claimName: "{{ pvc_name }}"
+        containers:
+        - image: itzg/minecraft-server
+          name: minecraft-server
+          env:
+            - name: OPS
+              value: schmots
+            - name: EULA
+              value: "TRUE"
+          ports:
+            - containerPort: 25565 
+          volumeMounts:
+            - name: nfs
+              mountPath: "/data"
+    state: absent
+- name: Pausing for clean up
+  pause:
+    seconds: 10

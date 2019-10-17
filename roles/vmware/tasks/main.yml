@@ -1,0 +1,34 @@
+- name: Clean old vm if present
+  vmware_guest:
+     validate_certs: False
+     hostname: "{{ vcenter }}"
+     username: "{{ vm_user }}"
+     password: "{{ vm_password }}"
+     name: "{{ user }}_station"
+     state: absent
+     force: true
+- name: Clone vm template for new workspace
+  vmware_guest:
+     validate_certs: False
+     hostname: "{{ vcenter }}"
+     username: "{{ vm_user }}"
+     password: "{{ vm_password }}"
+     datacenter: Datacenter
+     folder: /vm
+     name: "{{ user }}_station"
+     template: linux_template
+     state: present
+     wait_for_ip_address: True
+- name: Collect IP address of new VM
+  vmware_guest_facts:
+    hostname: "{{ vcenter }}"
+    username: "{{ vm_user }}"
+    password: "{{ vm_password }}"
+    datacenter: Datacenter
+    validate_certs: no
+    name: "{{ user }}_station"
+  register: vm_facts
+- name: Add host to inventory
+  add_host:
+    hostname: "{{ vm_facts.instance.ipv4 }}"
+    groups: vms

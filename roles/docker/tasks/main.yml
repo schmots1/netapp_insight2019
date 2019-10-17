@@ -1,0 +1,34 @@
+---
+- name: Add Docker repository
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+    mode: 0644
+
+- name: Install docker-ce and docker-compose
+  package:
+    name: "{{ item }}"
+    state: latest
+  loop:
+  - docker-ce
+  - docker-compose
+
+- name: Start Docker
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Add Docker compose file
+  template:
+    src: docker-compose.j2
+    dest: "/root/docker-compose.yml"
+
+- name: Start Container
+  command: docker-compose up -d
+  args:
+    chdir: /root/
+
+- name: Wait for container to start
+  pause:
+    seconds: 5

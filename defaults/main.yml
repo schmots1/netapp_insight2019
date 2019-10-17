@@ -1,0 +1,15 @@
+netapp_hostname: 172.32.0.192
+netapp_username: admin
+netapp_password: netapp123
+user: default
+vcenter: 172.32.0.16
+vm_user: administrator@vsphere.local
+vm_password: Netapp123!1
+vserver: nfs_vserver
+master: master_vol
+client: 0.0.0.0
+mount: 172.32.0.193
+jobtype: 
+pv_name: nfs-vol1
+pvc_name: nfs-pvc
+vol_name:

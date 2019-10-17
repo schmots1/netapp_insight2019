@@ -1,0 +1,35 @@
+- name: mount test data
+  mount:
+    path: /mnt/source
+    src: "{{ mount }}:/{{ test_vol }}"
+    fstype: nfs
+    state: mounted
+- name: mount master data
+  mount:
+    path: /mnt/destination
+    src: "{{ mount }}:/{{ vol_name }}"
+    fstype: nfs
+    state: mounted
+- name: Copy test to master
+  shell: "yes | cp -aRv /mnt/source/world/* /mnt/destination/world/"
+#  copy:
+#    src: /mnt/source/
+#    dest: /mnt/destination/
+#    remote_src: yes
+#    directory_mode: yes
+- name: Pause to let copy finish
+  pause:
+    seconds: 5
+- name: unmount test data
+  mount:
+    path: /mnt/source
+    src: "{{ mount }}:/{{ test_vol }}"
+    fstype: nfs
+    state: absent
+- name: unmount master data
+  mount:
+    path: /mnt/destination
+    src: "{{ mount }}:/{{ vol_name }}"
+    fstype: nfs
+    state: absent
+

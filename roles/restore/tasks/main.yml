@@ -1,0 +1,8 @@
+- name: Restoring most recent snap
+  na_ontap_command:
+    command: "['snap restore -vserver {{ vserver }} -volume {{ vol_name }} -snapshot hourly.0']"
+    hostname: "{{ netapp_hostname }}"
+    username: "{{ netapp_username }}"
+    password: "{{ netapp_password }}"
+    https: true
+    validate_certs: false

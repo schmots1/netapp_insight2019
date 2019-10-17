@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars_files:
+    defaults/main.yml
+  vars:
+    pod_name: minecraft-david-test
+    pv_name: david-test-pv
+    pvc_name: david-test-pvc
+  roles:
+  - unkube

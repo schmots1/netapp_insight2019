@@ -1,0 +1,11 @@
+client_match: 0.0.0.0/0
+jobtype: test
+tower_user_name: david
+master: '{{ tower_user_name }}_clone'
+pod_name: 'minecraft-{{ tower_user_name }}-test'
+pv_name: '{{ tower_user_name }}-test-pv'
+pvc_name: '{{ tower_user_name }}-test-pvc'
+user: '{{ tower_user_name }}'
+vol_name: '{{ tower_user_name }}_test'
+
+

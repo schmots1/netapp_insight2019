@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars_files:
+    defaults/main.yml
+  roles:
+  - unkube
+- hosts: master
+  vars_files:
+    defaults/main.yml
+  roles:
+  - update
+- hosts: localhost
+  gather_facts: false
+  vars_files:
+    defaults/main.yml
+  roles:
+  - kube

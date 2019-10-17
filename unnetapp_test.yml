@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  gather_facts: false
+  vars_files:
+    defaults/main.yml
+  vars:
+    user: david
+    master: david_clone
+    vol_name: david_test
+    jobtype: test
+  roles:
+  - unnetapp

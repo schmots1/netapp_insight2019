@@ -1,0 +1,31 @@
+- name: Delete volume
+  na_ontap_volume:
+    state: absent
+    name: "{{ user }}_{{ jobtype }}"
+    vserver: "{{ vserver }}"
+    hostname: "{{ netapp_hostname }}"
+    username: "{{ netapp_username }}"
+    password: "{{ netapp_password }}"
+    https: true
+    validate_certs: false
+- name: Delete Snapshot
+  na_ontap_snapshot:
+    state: absent
+    snapshot: "clone_{{ user }}_{{ jobtype }}.0"
+    volume: "{{ master }}"
+    vserver: "{{ vserver }}"
+    username: "{{ netapp_username }}"
+    password: "{{ netapp_password }}"
+    https: true
+    validate_certs: false
+    hostname: "{{ netapp_hostname }}"
+- name: Delete Policy
+  na_ontap_export_policy:
+    state: absent
+    name: "{{ user }}_{{ jobtype }}"
+    vserver: "{{ vserver }}"
+    hostname: "{{ netapp_hostname }}"
+    username: "{{ netapp_username }}"
+    password: "{{ netapp_password }}"
+    https: true
+    validate_certs: false
